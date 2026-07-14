@@ -1,4 +1,4 @@
-package com.catalis.sharedkernel;
+package com.dkatalis.sharedkernel;
 
 /**
  * @author yauritux@gmail.com

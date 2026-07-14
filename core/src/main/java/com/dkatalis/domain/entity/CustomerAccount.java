@@ -1,4 +1,4 @@
-package com.catalis.domain.entity;
+package com.dkatalis.domain.entity;
 
 import java.math.BigDecimal;
 
