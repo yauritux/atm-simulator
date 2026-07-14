@@ -5,9 +5,14 @@ import com.dkatalis.sharedkernel.DomainException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author yauritux@gmail.com
+ * @version 1.0
+ */
 public class CustomerAccountTest {
 
     @Test
@@ -46,5 +51,13 @@ public class CustomerAccountTest {
     @Test
     void newCustomerAccountWithInitialBalanceAndEmptyNameShouldFail() {
         assertThrows(DomainException.class, () -> new CustomerAccount("", BigDecimal.valueOf(1_000_000)));
+    }
+
+    @Test
+    void twoCustomersWithSameNameShouldBeEqual() {
+        var customer1 = new CustomerAccount("yauritux");
+        var customer2 = new CustomerAccount("yauritux", BigDecimal.valueOf(1_500_000));
+        assertEquals(customer1, customer2);
+        assertEquals(customer1.hashCode(), customer2.hashCode());
     }
 }

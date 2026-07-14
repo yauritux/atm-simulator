@@ -3,6 +3,7 @@ package com.dkatalis.domain.entity;
 import com.dkatalis.sharedkernel.DomainException;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @author yauritux@gmail.com
@@ -40,5 +41,18 @@ public class CustomerAccount {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomerAccount that = (CustomerAccount) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }
