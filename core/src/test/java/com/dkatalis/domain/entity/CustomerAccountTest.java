@@ -1,11 +1,9 @@
-package com.dkatalis.domain;
+package com.dkatalis.domain.entity;
 
-import com.dkatalis.domain.entity.CustomerAccount;
 import com.dkatalis.sharedkernel.DomainException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
