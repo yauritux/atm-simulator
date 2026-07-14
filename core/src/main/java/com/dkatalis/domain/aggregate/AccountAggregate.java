@@ -34,7 +34,7 @@ public class AccountAggregate implements CustomerAccountServicePort {
 
     @Override
     public void logout() {
-
+        currentAccount = null;
     }
 
     @Override

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountAggregateTest {
 
@@ -27,5 +27,11 @@ public class AccountAggregateTest {
         assertEquals("yauritux", accountService.getCurrentAccount().getName());
     }
 
-
+    @Test
+    void logoutShouldClearCurrentAccount() {
+        accountService.login("yauritux");
+        assertNotNull(accountService.getCurrentAccount());
+        accountService.logout();
+        assertNull(accountService.getCurrentAccount());
+    }
 }
