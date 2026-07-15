@@ -25,11 +25,7 @@ public class AccountAggregate implements CustomerAccountServicePort {
     @Override
     public BigDecimal login(String name) {
         Optional<CustomerAccount> existingCustomer = accountRepository.findByCustomerName(name);
-        if (existingCustomer.isPresent()) {
-            currentAccount = existingCustomer.get();
-        } else {
-            currentAccount = new CustomerAccount(name);
-        }
+        currentAccount = existingCustomer.orElseGet(() -> new CustomerAccount(name));
         return currentAccount.getBalance();
     }
 
@@ -45,9 +41,19 @@ public class AccountAggregate implements CustomerAccountServicePort {
 
     @Override
     public BigDecimal deposit(BigDecimal amount) {
+        validateLogin();
+        return currentAccount.getBalance().add(amount);
+    }
+
+    @Override
+    public BigDecimal withdraw(BigDecimal amount) {
+        validateLogin();
+        return currentAccount.getBalance().subtract(amount);
+    }
+
+    private void validateLogin() {
         if (currentAccount == null) {
             throw new DomainException("Please login first!");
         }
-        return currentAccount.getBalance().add(amount);
     }
 }

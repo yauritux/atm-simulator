@@ -17,4 +17,6 @@ public interface CustomerAccountServicePort {
     CustomerAccount getCurrentAccount();
 
     BigDecimal deposit(BigDecimal amount);
+
+    BigDecimal withdraw(BigDecimal amount);
 }

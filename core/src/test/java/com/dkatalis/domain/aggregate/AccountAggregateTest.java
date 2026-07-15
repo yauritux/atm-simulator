@@ -31,11 +31,11 @@ public class AccountAggregateTest {
 
     @Test
     void loginWithExistingAccountReturnsExistingBalance() {
-        var account = new CustomerAccount("yauritux", BigDecimal.valueOf(500_000));
+        var account = new CustomerAccount("yauritux", BigDecimal.valueOf(100));
         accountRepository.save(account);
 
         BigDecimal balance = accountService.login("yauritux");
-        assertEquals(BigDecimal.valueOf(500_000), balance);
+        assertEquals(BigDecimal.valueOf(100), balance);
     }
 
     @Test
@@ -48,13 +48,24 @@ public class AccountAggregateTest {
 
     @Test
     void depositWithoutLoginShouldFail() {
-        assertThrows(DomainException.class, () -> accountService.deposit(BigDecimal.valueOf(100_000)));
+        assertThrows(DomainException.class, () -> accountService.deposit(BigDecimal.valueOf(200)));
     }
 
     @Test
     void depositAddAmountToBalance() {
         accountService.login("yauritux");
-        BigDecimal balance = accountService.deposit(BigDecimal.valueOf(100_000));
-        assertEquals(BigDecimal.valueOf(100_000), balance);
+        BigDecimal balance = accountService.deposit(BigDecimal.valueOf(100));
+        assertEquals(BigDecimal.valueOf(100), balance);
+    }
+
+    @Test
+    void withdrawWithoutLoginShouldFail() {
+        assertThrows(DomainException.class, () -> accountService.withdraw(BigDecimal.valueOf(50)));
+    }
+
+    @Test
+    void withdrawWithInsufficientBalanceShouldFail() {
+        accountService.login("yauritux");
+        assertThrows(DomainException.class, () -> accountService.withdraw(BigDecimal.valueOf(50)));
     }
 }
