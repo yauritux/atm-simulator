@@ -92,4 +92,43 @@ public class AccountAggregateTest {
         TransactionResponse response = accountService.withdraw(BigDecimal.valueOf(30));
         assertEquals(BigDecimal.valueOf(70), response.getCustomerAccount().getBalance());
     }
+
+    @Test
+    void transferWithoutLoginShouldFail() {
+        assertThrows(DomainException.class, () -> accountService.transfer("yauritux", BigDecimal.valueOf(50)));
+    }
+
+    @Test
+    void transferToSelfShouldFail() {
+        accountService.login("yauritux");
+        accountService.deposit(BigDecimal.valueOf(100));
+        assertThrows(DomainException.class, () -> accountService.transfer("yauritux", BigDecimal.valueOf(50)));
+    }
+
+    @Test
+    void transferWithInsufficientBalanceCreatesDebt() {
+        accountService.login("yauritux");
+        accountService.deposit(BigDecimal.valueOf(80));
+        TransactionResponse response = accountService.transfer("Alice", BigDecimal.valueOf(100));
+
+        assertEquals(BigDecimal.ZERO, response.getCustomerAccount().getBalance());
+        assertEquals(BigDecimal.valueOf(80), response.getTransferList().get(0).transferAmount());
+        assertEquals(1, response.getDebtAccounts().size());
+        assertEquals(BigDecimal.valueOf(20), response.getDebtAccounts().get(0).getAmount());
+    }
+
+    @Test
+    void depositAutoSettlesDebt() {
+        accountService.login("yauritux");
+        accountService.deposit(BigDecimal.valueOf(80));
+        accountService.transfer("Alice", BigDecimal.valueOf(100));
+        accountService.logout();
+
+        accountService.login("yauritux");
+        TransactionResponse response = accountService.deposit(BigDecimal.valueOf(30));
+
+        assertEquals(BigDecimal.valueOf(10), response.getCustomerAccount().getBalance());
+        assertTrue(response.getDebtAccounts().isEmpty());
+        assertEquals(1, response.getTransferList().size());
+    }
 }

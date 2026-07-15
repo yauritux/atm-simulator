@@ -118,6 +118,42 @@ public class AccountAggregate implements CustomerAccountServicePort {
         return response;
     }
 
+    @Override
+    public TransactionResponse transfer(String targetName, BigDecimal transferAmount) {
+        validateLogin();
+        validatePositiveAmount(transferAmount);
+
+        if (currentAccount.getName().equals(targetName)) {
+            throw new DomainException("Cannot transfer to yourself");
+        }
+
+        CustomerAccount target = findOrCreateAccount(targetName);
+
+        TransactionResponse response = new TransactionResponse();
+        response.setCustomerAccount(currentAccount);
+
+        BigDecimal available = currentAccount.getBalance();
+        BigDecimal actual = available.min(transferAmount);
+
+        if (actual.compareTo(BigDecimal.ZERO) > 0) {
+            currentAccount.setBalance(currentAccount.getBalance().subtract(actual));
+            target.setBalance(target.getBalance().add(actual));
+            accountRepository.save(currentAccount);
+            accountRepository.save(target);
+            response.addTransfer(new TransferDto(target, actual));
+        }
+
+        BigDecimal remaining = transferAmount.subtract(actual);
+        if (remaining.compareTo(BigDecimal.ZERO) > 0) {
+            DebtAccount debt = new DebtAccount(currentAccount.getName(), target.getName(), remaining);
+            debtRepository.save(debt);
+            response.addDebtAccount(debt);
+        }
+
+        response.setDebtAccounts(new ArrayList<>(debtRepository.findByDebtorAccount(currentAccount.getName())));
+        return response;
+    }
+
     private void validateLogin() {
         if (currentAccount == null) {
             throw new DomainException("Please login first!");

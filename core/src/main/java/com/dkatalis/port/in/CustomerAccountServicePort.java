@@ -20,4 +20,6 @@ public interface CustomerAccountServicePort {
     TransactionResponse deposit(BigDecimal depositAmount);
 
     TransactionResponse withdraw(BigDecimal withdrawAmount);
+
+    TransactionResponse transfer(String targetName, BigDecimal transferAmount);
 }
