@@ -2,6 +2,8 @@ package com.dkatalis.domain.aggregate;
 
 import com.dkatalis.domain.entity.CustomerAccount;
 import com.dkatalis.domain.port.out.FakeCustomerAccountRepository;
+import com.dkatalis.domain.port.out.FakeDebtAccountRepository;
+import com.dkatalis.domain.valueobject.TransactionResponse;
 import com.dkatalis.sharedkernel.DomainException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +16,14 @@ public class AccountAggregateTest {
 
     private AccountAggregate accountService;
     private FakeCustomerAccountRepository accountRepository;
+    private FakeDebtAccountRepository debtAccountRepository;
 
 
     @BeforeEach
     void setUp() {
         accountRepository = new FakeCustomerAccountRepository();
-        accountService = new AccountAggregate(accountRepository);
+        debtAccountRepository = new FakeDebtAccountRepository();
+        accountService = new AccountAggregate(accountRepository, debtAccountRepository);
     }
 
     @Test
@@ -85,7 +89,7 @@ public class AccountAggregateTest {
     void withdrawShouldSubtractAmountFromBalance() {
         accountService.login("yauritux");
         accountService.deposit(BigDecimal.valueOf(100));
-        BigDecimal balance = accountService.withdraw(BigDecimal.valueOf(50));
-        assertEquals(BigDecimal.valueOf(50), balance);
+        TransactionResponse response = accountService.withdraw(BigDecimal.valueOf(30));
+        assertEquals(BigDecimal.valueOf(70), response.getCustomerAccount().getBalance());
     }
 }
