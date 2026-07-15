@@ -3,6 +3,7 @@ package com.dkatalis.domain.aggregate;
 import com.dkatalis.domain.entity.CustomerAccount;
 import com.dkatalis.port.in.CustomerAccountServicePort;
 import com.dkatalis.port.out.CustomerAccountRepositoryPort;
+import com.dkatalis.sharedkernel.DomainException;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -40,5 +41,13 @@ public class AccountAggregate implements CustomerAccountServicePort {
     @Override
     public CustomerAccount getCurrentAccount() {
         return currentAccount;
+    }
+
+    @Override
+    public BigDecimal deposit(BigDecimal amount) {
+        if (currentAccount == null) {
+            throw new DomainException("Please login first!");
+        }
+        return currentAccount.getBalance().add(amount);
     }
 }

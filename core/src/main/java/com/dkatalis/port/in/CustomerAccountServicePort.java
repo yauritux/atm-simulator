@@ -15,4 +15,6 @@ public interface CustomerAccountServicePort {
     void logout();
 
     CustomerAccount getCurrentAccount();
+
+    BigDecimal deposit(BigDecimal amount);
 }
