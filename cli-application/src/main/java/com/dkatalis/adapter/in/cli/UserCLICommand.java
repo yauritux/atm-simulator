@@ -1,0 +1,110 @@
+package com.dkatalis.adapter.in.cli;
+
+import com.dkatalis.adapter.out.inmemory.InMemCustomerAccountRepository;
+import com.dkatalis.adapter.out.inmemory.InMemDebtAccountRepository;
+import com.dkatalis.domain.aggregate.AccountAggregate;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Class that represent all possible CLI commands invoked by our user.
+ *
+ * @author yauritux@gmail.com
+ * @version 1.0
+ */
+public class UserCLICommand {
+
+    private final AccountAggregate accountAggregate =
+            new AccountAggregate(new InMemCustomerAccountRepository(), new InMemDebtAccountRepository());
+
+    public static final UserCLICommand INSTANCE = new UserCLICommand();
+
+    /**
+     * user login command
+     */
+    public List<String> login(String name) {
+        List<String> cmdResponse = new ArrayList<>();
+        if (name == null || name.trim().isEmpty()) {
+            cmdResponse.add("Usage: login [name]");
+            cmdResponse.add("E.g. : login Alice");
+            return cmdResponse;
+        }
+        var currentBalance = accountAggregate.login(name);
+        cmdResponse.add(String.format("Hello, %s!%n", name));
+        cmdResponse.add(String.format("Your balance is $%s%n", currentBalance));
+        return cmdResponse;
+    }
+
+    public List<String> logout() {
+        List<String> cmdResponse = new ArrayList<>();
+        if (accountAggregate.getCurrentAccount() == null) {
+            cmdResponse.add("You've logged-out already!%n");
+            return cmdResponse;
+        }
+        var currentLoggedInName = accountAggregate.getCurrentAccount().getName();
+        accountAggregate.logout();
+        cmdResponse.add(String.format("Goodbye, %s!%n", currentLoggedInName));
+        return cmdResponse;
+    }
+
+    public List<String> deposit(BigDecimal amount) {
+        List<String> cmdResponse = new ArrayList<>();
+        if (amount == null) {
+            cmdResponse.add("Usage: deposit [amount]");
+            cmdResponse.add("E.g. : deposit 100");
+            return cmdResponse;
+        }
+        try {
+            var response = accountAggregate.deposit(amount);
+            response.getTransferList().forEach(t ->
+                    cmdResponse.add(String.format(
+                            "Transferred $%s to %s%n", t.transferAmount(), t.targetAccount().getName())));
+            cmdResponse.add(String.format("Your balance is $%s%n", response.getCustomerAccount().getBalance()));
+            response.getDebtAccounts().forEach(da ->
+                    cmdResponse.add(String.format("Owed $%s to %s%n", da.getAmount(), da.getCreditorAccountName())));
+        } catch (Exception e) {
+            cmdResponse.add(e.getMessage());
+        }
+        return cmdResponse;
+    }
+
+    public List<String> transfer(String targetAccountName, BigDecimal transferAmount) {
+        List<String> cmdResponse = new ArrayList<>();
+        try {
+            var response = accountAggregate.transfer(targetAccountName, transferAmount);
+            response.getTransferList().forEach(t -> {
+                if (t.targetAccount().getName().equalsIgnoreCase(targetAccountName)) {
+                    cmdResponse.add(String.format("Transferred $%s to %s%n", t.transferAmount(), targetAccountName));
+                }
+            });
+            cmdResponse.add(String.format("your balance is $%s%n", accountAggregate.getCurrentAccount().getBalance()));
+            response.getDebtAccounts().forEach(debtAccount ->
+                    cmdResponse.add(String.format(
+                            "Owed $%s to %s%n", debtAccount.getAmount(), debtAccount.getCreditorAccountName())));
+        } catch (Exception e) {
+            cmdResponse.add(e.getMessage());
+        }
+        return cmdResponse;
+    }
+
+    public List<String> withdraw(BigDecimal withdrawAmount) {
+        List<String> cmdResponse = new ArrayList<>();
+        if (withdrawAmount == null) {
+            cmdResponse.add("Usage: withdraw [number]");
+            cmdResponse.add("E.g. : withdraw 50");
+            return cmdResponse;
+        }
+        try {
+            var response = accountAggregate.withdraw(withdrawAmount);
+            cmdResponse.add(String.format("$%s is withdrawn from your account%n", withdrawAmount));
+            cmdResponse.add(String.format("your current balance now is $%s%n", response.getCustomerAccount().getBalance()));
+        } catch (Exception e) {
+            cmdResponse.add(e.getMessage());
+        }
+        return cmdResponse;
+    }
+
+    private UserCLICommand() {}
+}

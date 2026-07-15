@@ -12,9 +12,9 @@ public interface DebtAccountRepositoryPort<ID> {
 
     void save(DebtAccount debtAccount);
 
-    List<DebtAccount> findByDebtorAccount(ID accountId);
+    List<DebtAccount> findByDebtorAccount(ID debtorAccountId);
 
-    List<DebtAccount> findByCreditorAccount(ID accountId);
+    List<DebtAccount> findByCreditorAccount(ID creditorAccountId);
 
     void remove(DebtAccount debtAccount);
 }
