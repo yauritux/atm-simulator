@@ -8,43 +8,43 @@ import java.math.BigDecimal;
  * @author yauritux@gmail.com
  * @version 1.0
  */
-public class LedgerLog {
+public class DebtAccount {
 
-    private String senderAccountName;
-    private String receiverAccountName;
+    private String debtorAccountName;
+    private String creditorAccountName;
     private BigDecimal amount;
 
-    public LedgerLog() {}
+    public DebtAccount() {}
 
-    public LedgerLog(String senderAccountName, String receiverAccountName, BigDecimal amount) {
-        if (senderAccountName == null || senderAccountName.isBlank()) {
-            throw new DomainException("Sender account name is required!");
+    public DebtAccount(String debtorAccountName, String creditorAccountName, BigDecimal amount) {
+        if (debtorAccountName == null || debtorAccountName.isBlank()) {
+            throw new DomainException("Debtor account name is required!");
         }
-        if (receiverAccountName == null || receiverAccountName.isBlank()) {
-            throw new DomainException("Receiver account name is required!");
+        if (creditorAccountName == null || creditorAccountName.isBlank()) {
+            throw new DomainException("Creditor account name is required!");
         }
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new DomainException("Amount should not be less than or equal to zero!");
         }
-        this.senderAccountName = senderAccountName;
-        this.receiverAccountName = receiverAccountName;
+        this.debtorAccountName = debtorAccountName;
+        this.creditorAccountName = creditorAccountName;
         this.amount = amount;
     }
 
-    public String getSenderAccountName() {
-        return senderAccountName;
+    public String getDebtorAccountName() {
+        return debtorAccountName;
     }
 
-    public void setSenderAccountName(String senderAccountName) {
-        this.senderAccountName = senderAccountName;
+    public void setDebtorAccountName(String debtorAccountName) {
+        this.debtorAccountName = debtorAccountName;
     }
 
-    public String getReceiverAccountName() {
-        return receiverAccountName;
+    public String getCreditorAccountName() {
+        return creditorAccountName;
     }
 
-    public void setReceiverAccountName(String receiverAccountName) {
-        this.receiverAccountName = receiverAccountName;
+    public void setCreditorAccountName(String creditorAccountName) {
+        this.creditorAccountName = creditorAccountName;
     }
 
     public BigDecimal getAmount() {

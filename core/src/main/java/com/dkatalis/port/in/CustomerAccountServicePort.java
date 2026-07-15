@@ -1,6 +1,7 @@
 package com.dkatalis.port.in;
 
 import com.dkatalis.domain.entity.CustomerAccount;
+import com.dkatalis.domain.valueobject.TransactionResponse;
 
 import java.math.BigDecimal;
 
@@ -16,7 +17,7 @@ public interface CustomerAccountServicePort {
 
     CustomerAccount getCurrentAccount();
 
-    BigDecimal deposit(BigDecimal depositAmount);
+    TransactionResponse deposit(BigDecimal depositAmount);
 
-    BigDecimal withdraw(BigDecimal withdrawAmount);
+    TransactionResponse withdraw(BigDecimal withdrawAmount);
 }
