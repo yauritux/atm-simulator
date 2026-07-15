@@ -30,16 +30,16 @@ public class FakeDebtAccountRepository implements DebtAccountRepositoryPort<Stri
     }
 
     @Override
-    public List<DebtAccount> findByDebtorAccount(String accountId) {
-        return new ArrayList<>(debtorRecords.getOrDefault(accountId, Collections.emptyList()));
+    public List<DebtAccount> findByDebtorAccount(String debtorAccountId) {
+        return new ArrayList<>(debtorRecords.getOrDefault(debtorAccountId, Collections.emptyList()));
     }
 
     @Override
-    public List<DebtAccount> findByCreditorAccount(String accountId) {
+    public List<DebtAccount> findByCreditorAccount(String creditorAccountId) {
         List<DebtAccount> result = new ArrayList<>();
         for (List<DebtAccount> debts : debtorRecords.values()) {
             for (DebtAccount debt : debts) {
-                if (debt.getCreditorAccountName().equals(accountId)) {
+                if (debt.getCreditorAccountName().equals(creditorAccountId)) {
                     result.add(debt);
                 }
             }
