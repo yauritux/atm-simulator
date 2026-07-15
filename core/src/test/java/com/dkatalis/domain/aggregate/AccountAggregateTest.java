@@ -52,10 +52,16 @@ public class AccountAggregateTest {
     }
 
     @Test
+    void depositWithNegativeAmountShouldFail() {
+        accountService.login("yauritux");
+        assertThrows(DomainException.class, () -> accountService.deposit(BigDecimal.valueOf(-200)));
+    }
+
+    @Test
     void depositAddAmountToBalance() {
         accountService.login("yauritux");
-        BigDecimal balance = accountService.deposit(BigDecimal.valueOf(100));
-        assertEquals(BigDecimal.valueOf(100), balance);
+        accountService.deposit(BigDecimal.valueOf(100));
+        assertEquals(BigDecimal.valueOf(100), accountService.getCurrentAccount().getBalance());
     }
 
     @Test
@@ -64,8 +70,22 @@ public class AccountAggregateTest {
     }
 
     @Test
+    void withdrawWithNegativeAmountShouldFail() {
+        accountService.login("yauritux");
+        assertThrows(DomainException.class, () -> accountService.withdraw(BigDecimal.valueOf(-50)));
+    }
+
+    @Test
     void withdrawWithInsufficientBalanceShouldFail() {
         accountService.login("yauritux");
         assertThrows(DomainException.class, () -> accountService.withdraw(BigDecimal.valueOf(50)));
+    }
+
+    @Test
+    void withdrawShouldSubtractAmountFromBalance() {
+        accountService.login("yauritux");
+        accountService.deposit(BigDecimal.valueOf(100));
+        BigDecimal balance = accountService.withdraw(BigDecimal.valueOf(50));
+        assertEquals(BigDecimal.valueOf(50), balance);
     }
 }

@@ -40,20 +40,43 @@ public class AccountAggregate implements CustomerAccountServicePort {
     }
 
     @Override
-    public BigDecimal deposit(BigDecimal amount) {
+    public BigDecimal deposit(BigDecimal depositAmount) {
         validateLogin();
-        return currentAccount.getBalance().add(amount);
+        validatePositiveAmount(depositAmount);
+
+        currentAccount.setBalance(currentAccount.getBalance().add(depositAmount));
+        accountRepository.save(currentAccount);
+
+        return currentAccount.getBalance();
     }
 
     @Override
-    public BigDecimal withdraw(BigDecimal amount) {
+    public BigDecimal withdraw(BigDecimal withdrawAmount) {
         validateLogin();
-        return currentAccount.getBalance().subtract(amount);
+        validatePositiveAmount(withdrawAmount);
+
+        if (withdrawAmount.compareTo(currentAccount.getBalance()) > 0) {
+            throw new DomainException(String.format(
+                    "Insufficient balance. Your current balance is $%s",
+                    currentAccount.getBalance()
+            ));
+        }
+
+        currentAccount.setBalance(currentAccount.getBalance().subtract(withdrawAmount));
+        accountRepository.save(currentAccount);
+
+        return currentAccount.getBalance();
     }
 
     private void validateLogin() {
         if (currentAccount == null) {
             throw new DomainException("Please login first!");
+        }
+    }
+
+    private void validatePositiveAmount(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new DomainException("Amount must be positive");
         }
     }
 }
