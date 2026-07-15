@@ -2,6 +2,7 @@ package com.dkatalis.domain.aggregate;
 
 import com.dkatalis.domain.entity.CustomerAccount;
 import com.dkatalis.domain.entity.DebtAccount;
+import com.dkatalis.domain.valueobject.CustomerStatus;
 import com.dkatalis.domain.valueobject.TransactionResponse;
 import com.dkatalis.domain.valueobject.TransferDto;
 import com.dkatalis.port.in.CustomerAccountServicePort;
@@ -152,6 +153,18 @@ public class AccountAggregate implements CustomerAccountServicePort {
 
         response.setDebtAccounts(new ArrayList<>(debtRepository.findByDebtorAccount(currentAccount.getName())));
         return response;
+    }
+
+    @Override
+    public CustomerStatus getCurrentStatus() {
+        validateLogin();
+
+        List<DebtAccount> owedTo = new ArrayList<>(debtRepository.findByDebtorAccount(currentAccount.getName()));
+        List<DebtAccount> owedFrom = new ArrayList<>(debtRepository.findByCreditorAccount(currentAccount.getName()));
+        owedTo.sort(Comparator.comparing(DebtAccount::getCreditorAccountName));
+        owedFrom.sort(Comparator.comparing(DebtAccount::getDebtorAccountName));
+
+        return new CustomerStatus(currentAccount, owedTo, owedFrom);
     }
 
     private void validateLogin() {

@@ -1,6 +1,7 @@
 package com.dkatalis.port.in;
 
 import com.dkatalis.domain.entity.CustomerAccount;
+import com.dkatalis.domain.valueobject.CustomerStatus;
 import com.dkatalis.domain.valueobject.TransactionResponse;
 
 import java.math.BigDecimal;
@@ -22,4 +23,6 @@ public interface CustomerAccountServicePort {
     TransactionResponse withdraw(BigDecimal withdrawAmount);
 
     TransactionResponse transfer(String targetName, BigDecimal transferAmount);
+
+    CustomerStatus getCurrentStatus();
 }

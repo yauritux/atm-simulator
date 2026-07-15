@@ -131,4 +131,18 @@ public class AccountAggregateTest {
         assertTrue(response.getDebtAccounts().isEmpty());
         assertEquals(1, response.getTransferList().size());
     }
+
+    @Test
+    void getCurrentStatusReturnsBalanceAndDebts() {
+        accountService.login("yauritux");
+        accountService.deposit(BigDecimal.valueOf(80));
+        accountService.transfer("Alice", BigDecimal.valueOf(100));
+        accountService.logout();
+
+        accountService.login("Alice");
+        var status = accountService.getCurrentStatus();
+        assertEquals(BigDecimal.valueOf(80), status.customerAccount().getBalance());
+        assertEquals(1, status.owedFrom().size());
+        assertEquals(BigDecimal.valueOf(20), status.owedFrom().get(0).getAmount());
+    }
 }
