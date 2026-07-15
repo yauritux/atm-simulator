@@ -30,6 +30,13 @@ Alternatively, you can use Docker to run it as a container. We provide a `Docker
 ./start.sh
 ```
 
+or with *Docker*:
+
+```sh
+docker build --no-cache -t atm-simulator:latest .
+docker container run -it --rm atm-simulator:latest
+```
+
 The program reads commands from standard input. Use `exit` or EOF to quit.
 
 ## How to run tests
