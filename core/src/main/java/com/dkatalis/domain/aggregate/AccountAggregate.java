@@ -11,6 +11,7 @@ import com.dkatalis.port.out.DebtAccountRepositoryPort;
 import com.dkatalis.sharedkernel.DomainException;
 
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -133,6 +134,32 @@ public class AccountAggregate implements CustomerAccountServicePort {
         TransactionResponse response = new TransactionResponse();
         response.setCustomerAccount(currentAccount);
 
+        // If the target already owes the current account, settle that debt first.
+        List<DebtAccount> targetDebts = debtRepository.findByDebtorAccount(target.getName());
+        if (targetDebts != null && !targetDebts.isEmpty()) {
+            for (DebtAccount debt : targetDebts) {
+                if (debt.getCreditorAccountName().equalsIgnoreCase(currentAccount.getName())) {
+                    BigDecimal payFromDebt = debt.getAmount().min(transferAmount);
+                    BigDecimal remainingDebt = debt.getAmount().subtract(payFromDebt);
+
+                    if (remainingDebt.compareTo(BigDecimal.ZERO) == 0) {
+                        debtRepository.remove(debt);
+                    } else {
+                        debt.setAmount(remainingDebt);
+                    }
+
+                    transferAmount = transferAmount.subtract(payFromDebt);
+
+                    if (transferAmount.compareTo(BigDecimal.ZERO) == 0) {
+                        response.setDebtAccounts(new ArrayList<>(debtRepository.findByDebtorAccount(currentAccount.getName())));
+                        return response;
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Transfer any remaining amount as cash.
         BigDecimal available = currentAccount.getBalance();
         BigDecimal actual = available.min(transferAmount);
 

@@ -32,8 +32,14 @@ public class UserCLICommand {
             return cmdResponse;
         }
         var currentBalance = accountAggregate.login(name);
-        cmdResponse.add(String.format("Hello, %s!%n", name));
+        cmdResponse.add(String.format("%nHello, %s!%n", name));
         cmdResponse.add(String.format("Your balance is $%s%n", currentBalance));
+
+        var status = accountAggregate.getCurrentStatus();
+        status.owedTo().forEach(d -> cmdResponse.add(
+                String.format("Owed $%s to %s%n", d.getAmount(), d.getCreditorAccountName())));
+        status.owedFrom().forEach(d -> cmdResponse.add(
+                String.format("Owed $%s from %s%n", d.getAmount(), d.getDebtorAccountName())));
         return cmdResponse;
     }
 
@@ -45,7 +51,7 @@ public class UserCLICommand {
         }
         var currentLoggedInName = accountAggregate.getCurrentAccount().getName();
         accountAggregate.logout();
-        cmdResponse.add(String.format("Goodbye, %s!%n", currentLoggedInName));
+        cmdResponse.add(String.format("%nGoodbye, %s!%n", currentLoggedInName));
         return cmdResponse;
     }
 
@@ -60,8 +66,8 @@ public class UserCLICommand {
             var response = accountAggregate.deposit(amount);
             response.getTransferList().forEach(t ->
                     cmdResponse.add(String.format(
-                            "Transferred $%s to %s%n", t.transferAmount(), t.targetAccount().getName())));
-            cmdResponse.add(String.format("Your balance is $%s%n", response.getCustomerAccount().getBalance()));
+                            "%nTransferred $%s to %s", t.transferAmount(), t.targetAccount().getName())));
+            cmdResponse.add(String.format("%nYour balance is $%s%n", response.getCustomerAccount().getBalance()));
             response.getDebtAccounts().forEach(da ->
                     cmdResponse.add(String.format("Owed $%s to %s%n", da.getAmount(), da.getCreditorAccountName())));
         } catch (Exception e) {
@@ -76,13 +82,16 @@ public class UserCLICommand {
             var response = accountAggregate.transfer(targetAccountName, transferAmount);
             response.getTransferList().forEach(t -> {
                 if (t.targetAccount().getName().equalsIgnoreCase(targetAccountName)) {
-                    cmdResponse.add(String.format("Transferred $%s to %s%n", t.transferAmount(), targetAccountName));
+                    cmdResponse.add(String.format("%nTransferred $%s to %s%n", t.transferAmount(), targetAccountName));
                 }
             });
+
+            var status = accountAggregate.getCurrentStatus();
             cmdResponse.add(String.format("your balance is $%s%n", accountAggregate.getCurrentAccount().getBalance()));
-            response.getDebtAccounts().forEach(debtAccount ->
-                    cmdResponse.add(String.format(
-                            "Owed $%s to %s%n", debtAccount.getAmount(), debtAccount.getCreditorAccountName())));
+            status.owedTo().forEach(d -> cmdResponse.add(
+                    String.format("Owed $%s to %s%n", d.getAmount(), d.getCreditorAccountName())));
+            status.owedFrom().forEach(d -> cmdResponse.add(
+                    String.format("Owed $%s from %s%n", d.getAmount(), d.getDebtorAccountName())));
         } catch (Exception e) {
             cmdResponse.add(e.getMessage());
         }
